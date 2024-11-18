@@ -6,34 +6,78 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
-    tools:context=".MainActivity">
+    android:gravity="center_horizontal"
+    tools:context=".MainActivity"
+    android:background="@drawable/background_login">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_margin="10dp"
+        android:textColor="@color/button_text"
+        android:fontFamily="@font/custom_font"
+        android:textStyle="bold"
+        android:text="Welcome\nGet Ready For Your Amazing Art Journal"
+        android:textSize="25sp"/>
+
+    <ImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/pillars"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textColor="@color/secondary_background"
+        android:textStyle="bold"
+        android:fontFamily="@font/custom_font"/>
 
     <EditText
         android:id="@+id/emailField"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Email" />
+        android:layout_height="75dp"
+        android:layout_margin="10dp"
+        android:hint="Email"
+        android:inputType="textEmailAddress"
+        android:textColor="@color/button_text"/>
 
     <EditText
         android:id="@+id/passwordField"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="75dp"
         android:hint="Password"
-        android:inputType="textPassword" />
+        android:inputType="textPassword"
+        android:layout_margin="10dp"
+        android:textColor="@color/button_text"/>
 
-    <Button
-        android:id="@+id/registerButton"
+    <!-- ProgressBar -->
+    <ProgressBar
+        android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Register"
-        android:onClick="onRegisterClick" />
+        android:layout_margin="10dp"
+        android:visibility="gone"
+        android:indeterminateTint="@color/secondary_background"/> <!-- Default hidden -->
 
-    <Button
-        android:id="@+id/loginButton"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Login"
-        android:onClick="onLoginClick" />
+        android:orientation="horizontal">
 
+        <Button
+            android:id="@+id/registerButton"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="Register"
+            android:layout_margin="10dp"
+            style="@style/CustomButtonStyle"/>
+
+        <Button
+            android:id="@+id/loginButton"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="Login"
+            android:layout_margin="10dp"
+            style="@style/CustomButtonStyle"/>
+    </LinearLayout>
 </LinearLayout>
