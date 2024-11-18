@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Assignment1_s3929513</string>
+    <string name="app_name">Art Pillars</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
