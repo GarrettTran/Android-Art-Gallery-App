@@ -1,0 +1,701 @@
+Index: app/build.gradle.kts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>plugins {\r\n    id(\"com.google.gms.google-services\")\r\n    alias(libs.plugins.android.application)\r\n}\r\n\r\nandroid {\r\n    namespace = \"rmit.ad.assignment1_s3929513\"\r\n    compileSdk = 34\r\n\r\n    defaultConfig {\r\n        applicationId = \"rmit.ad.assignment1_s3929513\"\r\n        minSdk = 24\r\n        targetSdk = 34\r\n        versionCode = 1\r\n        versionName = \"1.0\"\r\n\r\n        testInstrumentationRunner = \"androidx.test.runner.AndroidJUnitRunner\"\r\n    }\r\n\r\n    buildTypes {\r\n        release {\r\n            isMinifyEnabled = false\r\n            proguardFiles(\r\n                getDefaultProguardFile(\"proguard-android-optimize.txt\"),\r\n                \"proguard-rules.pro\"\r\n            )\r\n        }\r\n    }\r\n    compileOptions {\r\n        sourceCompatibility = JavaVersion.VERSION_11\r\n        targetCompatibility = JavaVersion.VERSION_11\r\n    }\r\n    buildFeatures {\r\n        viewBinding = true\r\n    }\r\n}\r\n\r\ndependencies {\r\n\r\n    implementation(libs.appcompat)\r\n    implementation(libs.annotation)\r\n    implementation(libs.constraintlayout)\r\n    implementation(libs.lifecycle.livedata.ktx)\r\n    implementation(libs.lifecycle.viewmodel.ktx)\r\n    implementation(libs.activity)\r\n    implementation(libs.firebase.auth)\r\n    implementation(\"com.google.android.material:material:1.9.0\")\r\n    testImplementation(libs.junit)\r\n    androidTestImplementation(libs.ext.junit)\r\n    androidTestImplementation(libs.espresso.core)\r\n    implementation(platform(\"com.google.firebase:firebase-bom:33.5.1\"))\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/build.gradle.kts b/app/build.gradle.kts
+--- a/app/build.gradle.kts	(revision 2d008233b9b11eef3c80dd02bc513419fea22b15)
++++ b/app/build.gradle.kts	(date 1731918431445)
+@@ -36,7 +36,6 @@
+ }
+ 
+ dependencies {
+-
+     implementation(libs.appcompat)
+     implementation(libs.annotation)
+     implementation(libs.constraintlayout)
+@@ -45,8 +44,10 @@
+     implementation(libs.activity)
+     implementation(libs.firebase.auth)
+     implementation("com.google.android.material:material:1.9.0")
++    implementation(libs.firebase.firestore)
+     testImplementation(libs.junit)
+     androidTestImplementation(libs.ext.junit)
+     androidTestImplementation(libs.espresso.core)
+     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
++    implementation("com.github.bumptech.glide:glide:4.15.1")
+ }
+\ No newline at end of file
+Index: app/src/main/java/rmit/ad/assignment1_s3929513/MainActivity.java
+===================================================================
+diff --git a/app/src/main/java/rmit/ad/assignment1_s3929513/MainActivity.java b/app/src/main/java/rmit/ad/assignment1_s3929513/activity/loginActivity.java
+rename from app/src/main/java/rmit/ad/assignment1_s3929513/MainActivity.java
+rename to app/src/main/java/rmit/ad/assignment1_s3929513/activity/loginActivity.java
+--- a/app/src/main/java/rmit/ad/assignment1_s3929513/MainActivity.java	(revision 2d008233b9b11eef3c80dd02bc513419fea22b15)
++++ b/app/src/main/java/rmit/ad/assignment1_s3929513/activity/loginActivity.java	(date 1731919063483)
+@@ -1,28 +1,23 @@
+-package rmit.ad.assignment1_s3929513;
++package rmit.ad.assignment1_s3929513.activity;
+ 
++import android.content.Intent;
+ import android.os.Bundle;
+-import android.view.LayoutInflater;
+ import android.view.View;
+ import android.widget.EditText;
+-import android.widget.ImageView;
+ import android.widget.ProgressBar;
+-import android.widget.TextView;
+-import android.widget.Toast;
+ import android.app.AlertDialog;
+ import android.content.DialogInterface;
+ 
+ 
+-
+-import androidx.activity.EdgeToEdge;
+ import androidx.appcompat.app.AppCompatActivity;
+-import androidx.core.graphics.Insets;
+-import androidx.core.view.ViewCompat;
+-import androidx.core.view.WindowInsetsCompat;
+ 
+ import com.google.firebase.auth.FirebaseAuth;
+ import com.google.firebase.auth.FirebaseUser;
+ 
+-public class MainActivity extends AppCompatActivity {
++import rmit.ad.assignment1_s3929513.CustomToast;
++import rmit.ad.assignment1_s3929513.R;
++
++public class loginActivity extends AppCompatActivity {
+     private FirebaseAuth mAuth;
+     private EditText emailField, passwordField;
+ 
+@@ -31,7 +26,7 @@
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+-        setContentView(R.layout.activity_main);
++        setContentView(R.layout.activity_login);
+ 
+         mAuth = FirebaseAuth.getInstance();
+         emailField = findViewById(R.id.emailField);
+@@ -60,11 +55,11 @@
+                     if (task.isSuccessful()) {
+                         // Registration successful, user is logged in
+                         FirebaseUser user = mAuth.getCurrentUser();
+-                        CustomToast.makeText(MainActivity.this,"Registration Successful",CustomToast.SHORT,CustomToast.SUCCESS,true).show();
++                        CustomToast.makeText(loginActivity.this,"Registration Successful",CustomToast.SHORT,CustomToast.SUCCESS,true).show();
+ 
+                     } else {
+                         // Registration failed, display a message
+-                        CustomToast.makeText(MainActivity.this,"Registration Failed: " + task.getException().getMessage(),CustomToast.SHORT,CustomToast.ERROR,true).show();
++                        CustomToast.makeText(loginActivity.this,"Registration Failed: " + task.getException().getMessage(),CustomToast.SHORT,CustomToast.ERROR,true).show();
+                     }
+                 });
+     }
+@@ -75,26 +70,34 @@
+                 .addOnCompleteListener(this, task -> {
+                     progressBar.setVisibility(View.GONE);
+                     if (task.isSuccessful()) {
+-                        // Login successful, user is logged in
++                        // Login successful, navigate to HomeActivity
+                         FirebaseUser user = mAuth.getCurrentUser();
+-                        CustomToast.makeText(MainActivity.this,"Login Successful",CustomToast.SHORT,CustomToast.SUCCESS,true).show();
++                        CustomToast.makeText(loginActivity.this, "Login Successful", CustomToast.SHORT, CustomToast.SUCCESS, true).show();
++
++                        // Navigate to HomeActivity
++                        Intent intent = new Intent(loginActivity.this, HomeActivity.class);
++                        intent.putExtra("userEmail", user.getEmail()); // Pass user email
++                        startActivity(intent);
++                        finish(); // Close LoginActivity
+                     } else {
+                         // Login failed, display a message
+-                        CustomToast.makeText(MainActivity.this,"Login Failed: " + task.getException().getMessage(),CustomToast.SHORT,CustomToast.ERROR,true).show();
++                        CustomToast.makeText(loginActivity.this, "Login Failed: " + task.getException().getMessage(), CustomToast.SHORT, CustomToast.ERROR, true).show();
+                     }
+                 });
+     }
++
+ 
+     @Override
+     protected void onStart() {
+         super.onStart();
+         FirebaseUser currentUser = mAuth.getCurrentUser();
+         if (currentUser != null) {
+-            // User is already logged in, proceed to the main app
+-            CustomToast.makeText(this, "Welcome Back " + currentUser.getEmail(), CustomToast.SHORT, CustomToast.SUCCESS, true).show();
+-
++            Intent intent = new Intent(loginActivity.this, HomeActivity.class);
++            startActivity(intent);
++            finish(); // Close LoginActivity
+         }
+     }
++
+ 
+     private void signOut() {
+         mAuth.signOut();
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\">\r\n\r\n    <application\r\n        android:allowBackup=\"true\"\r\n        android:dataExtractionRules=\"@xml/data_extraction_rules\"\r\n        android:fullBackupContent=\"@xml/backup_rules\"\r\n        android:icon=\"@drawable/pillars\"\r\n        android:label=\"@string/app_name\"\r\n        android:roundIcon=\"@drawable/pillars\"\r\n        android:supportsRtl=\"true\"\r\n        android:theme=\"@style/Theme.Assignment1_s3929513\"\r\n        tools:targetApi=\"31\">\r\n        <activity\r\n            android:name=\".MainActivity\"\r\n            android:exported=\"true\">\r\n            <intent-filter>\r\n                <action android:name=\"android.intent.action.MAIN\" />\r\n\r\n                <category android:name=\"android.intent.category.LAUNCHER\" />\r\n            </intent-filter>\r\n        </activity>\r\n    </application>\r\n\r\n</manifest>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+--- a/app/src/main/AndroidManifest.xml	(revision 2d008233b9b11eef3c80dd02bc513419fea22b15)
++++ b/app/src/main/AndroidManifest.xml	(date 1731916533408)
+@@ -13,7 +13,10 @@
+         android:theme="@style/Theme.Assignment1_s3929513"
+         tools:targetApi="31">
+         <activity
+-            android:name=".MainActivity"
++            android:name=".activity.HomeActivity"
++            android:exported="false" />
++        <activity
++            android:name=".activity.loginActivity"
+             android:exported="true">
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+Index: app/src/main/res/layout/activity_main.xml
+===================================================================
+diff --git a/app/src/main/res/layout/activity_main.xml b/app/src/main/res/layout/activity_login.xml
+rename from app/src/main/res/layout/activity_main.xml
+rename to app/src/main/res/layout/activity_login.xml
+--- a/app/src/main/res/layout/activity_main.xml	(revision 2d008233b9b11eef3c80dd02bc513419fea22b15)
++++ b/app/src/main/res/layout/activity_login.xml	(date 1731916009851)
+@@ -7,7 +7,7 @@
+     android:layout_height="match_parent"
+     android:orientation="vertical"
+     android:gravity="center_horizontal"
+-    tools:context=".MainActivity"
++    tools:context=".activity.loginActivity"
+     android:background="@drawable/background_login">
+ 
+     <TextView
+@@ -57,7 +57,7 @@
+         android:layout_height="wrap_content"
+         android:layout_margin="10dp"
+         android:visibility="gone"
+-        android:indeterminateTint="@color/secondary_background"/> <!-- Default hidden -->
++        android:indeterminateTint="@color/secondary_background"/>
+ 
+     <LinearLayout
+         android:layout_width="wrap_content"
+Index: app/src/main/java/rmit/ad/assignment1_s3929513/activity/HomeActivity.java
+===================================================================
+diff --git a/app/src/main/java/rmit/ad/assignment1_s3929513/activity/HomeActivity.java b/app/src/main/java/rmit/ad/assignment1_s3929513/activity/HomeActivity.java
+new file mode 100644
+--- /dev/null	(date 1731921354200)
++++ b/app/src/main/java/rmit/ad/assignment1_s3929513/activity/HomeActivity.java	(date 1731921354200)
+@@ -0,0 +1,115 @@
++package rmit.ad.assignment1_s3929513.activity;
++
++import android.os.Bundle;
++import android.util.Log;
++import androidx.appcompat.widget.SearchView;
++
++
++import androidx.annotation.NonNull;
++import androidx.appcompat.app.AppCompatActivity;
++import androidx.recyclerview.widget.LinearLayoutManager;
++import androidx.recyclerview.widget.RecyclerView;
++
++import com.google.android.material.bottomnavigation.BottomNavigationView;
++
++import java.util.ArrayList;
++import java.util.List;
++
++import rmit.ad.assignment1_s3929513.R;
++import rmit.ad.assignment1_s3929513.adapter.ArtworkAdapter;
++import rmit.ad.assignment1_s3929513.FireStoreDatabaseHandler;
++import rmit.ad.assignment1_s3929513.model.Artwork;
++
++public class HomeActivity extends AppCompatActivity {
++
++    private FireStoreDatabaseHandler dbHandler;
++    private RecyclerView recyclerView;
++    private ArtworkAdapter adapter;
++    private List<Artwork> allArtworks = new ArrayList<>();
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setContentView(R.layout.activity_home);
++
++        // Initialize Firestore handler
++        dbHandler = new FireStoreDatabaseHandler();
++
++        // Set up RecyclerView
++        recyclerView = findViewById(R.id.recycler_view);
++        recyclerView.setLayoutManager(new LinearLayoutManager(this));
++
++        // Fetch artworks from Firestore
++        fetchAndDisplayArtworks();
++
++        // Set up Search Bar
++        SearchView searchView = findViewById(R.id.search_bar);
++        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
++            @Override
++            public boolean onQueryTextSubmit(String query) {
++                filterArtworks(query);
++                return false;
++            }
++
++            @Override
++            public boolean onQueryTextChange(String newText) {
++                filterArtworks(newText);
++                return false;
++            }
++        });
++
++        // Set up Bottom Navigation Bar
++        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
++        bottomNavigationView.setOnItemSelectedListener(item -> {
++            int id = item.getItemId();
++
++            if (id == R.id.nav_home) {
++                // Current view
++                Log.d("Navigation", "Home clicked");
++                return true;
++            } else if (id == R.id.nav_favorite) {
++                // Navigate to FavoriteActivity
++                Log.d("Navigation", "Favorite clicked");
++                // Intent intent = new Intent(this, FavoriteActivity.class);
++                // startActivity(intent);
++                return true;
++            } else if (id == R.id.nav_user) {
++                // Navigate to UserActivity
++                Log.d("Navigation", "User clicked");
++                // Intent intent = new Intent(this, UserActivity.class);
++                // startActivity(intent);
++                return true;
++            }
++
++            return false;
++        });
++
++    }
++
++    private void fetchAndDisplayArtworks() {
++        dbHandler.fetchAllArtworks(new FireStoreDatabaseHandler.DataCallback<List<Artwork>>() {
++            @Override
++            public void onSuccess(List<Artwork> artworks) {
++                Log.d("Firestore", "Fetched artworks: " + artworks.toString());
++                allArtworks = artworks; // Store all artworks
++                adapter = new ArtworkAdapter(allArtworks);
++                recyclerView.setAdapter(adapter);
++            }
++
++            @Override
++            public void onFailure(Exception e) {
++                Log.e("Firestore", "Error fetching artworks", e);
++            }
++        });
++    }
++
++    private void filterArtworks(String query) {
++        List<Artwork> filteredList = new ArrayList<>();
++        for (Artwork artwork : allArtworks) {
++            if (artwork.getTitle().toLowerCase().contains(query.toLowerCase())) {
++                filteredList.add(artwork);
++            }
++        }
++        adapter.updateList(filteredList);
++    }
++}
+Index: app/src/main/res/layout/activity_home.xml
+===================================================================
+diff --git a/app/src/main/res/layout/activity_home.xml b/app/src/main/res/layout/activity_home.xml
+new file mode 100644
+--- /dev/null	(date 1731924019993)
++++ b/app/src/main/res/layout/activity_home.xml	(date 1731924019993)
+@@ -0,0 +1,33 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:orientation="vertical">
++
++    <!-- Search Bar -->
++    <androidx.appcompat.widget.SearchView
++        android:id="@+id/search_bar"
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:queryHint="Search artworks" />
++
++    <!-- RecyclerView for displaying artworks -->
++    <androidx.recyclerview.widget.RecyclerView
++        android:id="@+id/recycler_view"
++        android:layout_width="match_parent"
++        android:layout_height="0dp"
++        android:layout_weight="1"
++        android:padding="8dp" />
++
++    <!-- Bottom Navigation Bar -->
++    <com.google.android.material.bottomnavigation.BottomNavigationView
++        android:id="@+id/bottom_navigation"
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        app:menu="@menu/bottom_navigation_menu"
++        app:labelVisibilityMode="labeled"
++        app:itemIconTint="@color/black"
++        app:itemTextColor="@color/black"
++        android:background="@color/secondary_background" />
++</LinearLayout>
+Index: gradle/libs.versions.toml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>[versions]\r\nagp = \"8.7.2\"\r\njunit = \"4.13.2\"\r\njunitVersion = \"1.2.1\"\r\nespressoCore = \"3.6.1\"\r\nappcompat = \"1.7.0\"\r\nmaterial = \"1.12.0\"\r\nannotation = \"1.6.0\"\r\nconstraintlayout = \"2.2.0\"\r\nlifecycleLivedataKtx = \"2.8.6\"\r\nlifecycleViewmodelKtx = \"2.8.6\"\r\nactivity = \"1.9.3\"\r\nfirebaseAuth = \"23.1.0\"\r\n\r\n[libraries]\r\njunit = { group = \"junit\", name = \"junit\", version.ref = \"junit\" }\r\next-junit = { group = \"androidx.test.ext\", name = \"junit\", version.ref = \"junitVersion\" }\r\nespresso-core = { group = \"androidx.test.espresso\", name = \"espresso-core\", version.ref = \"espressoCore\" }\r\nappcompat = { group = \"androidx.appcompat\", name = \"appcompat\", version.ref = \"appcompat\" }\r\nmaterial = { group = \"com.google.android.material\", name = \"material\", version.ref = \"material\" }\r\nannotation = { group = \"androidx.annotation\", name = \"annotation\", version.ref = \"annotation\" }\r\nconstraintlayout = { group = \"androidx.constraintlayout\", name = \"constraintlayout\", version.ref = \"constraintlayout\" }\r\nlifecycle-livedata-ktx = { group = \"androidx.lifecycle\", name = \"lifecycle-livedata-ktx\", version.ref = \"lifecycleLivedataKtx\" }\r\nlifecycle-viewmodel-ktx = { group = \"androidx.lifecycle\", name = \"lifecycle-viewmodel-ktx\", version.ref = \"lifecycleViewmodelKtx\" }\r\nactivity = { group = \"androidx.activity\", name = \"activity\", version.ref = \"activity\" }\r\nfirebase-auth = { group = \"com.google.firebase\", name = \"firebase-auth\", version.ref = \"firebaseAuth\" }\r\n\r\n[plugins]\r\nandroid-application = { id = \"com.android.application\", version.ref = \"agp\" }\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
+--- a/gradle/libs.versions.toml	(revision 2d008233b9b11eef3c80dd02bc513419fea22b15)
++++ b/gradle/libs.versions.toml	(date 1731917262403)
+@@ -11,6 +11,7 @@
+ lifecycleViewmodelKtx = "2.8.6"
+ activity = "1.9.3"
+ firebaseAuth = "23.1.0"
++firebaseFirestore = "25.1.1"
+ 
+ [libraries]
+ junit = { group = "junit", name = "junit", version.ref = "junit" }
+@@ -24,6 +25,7 @@
+ lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+ activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+ firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
++firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+ 
+ [plugins]
+ android-application = { id = "com.android.application", version.ref = "agp" }
+Index: app/src/main/java/rmit/ad/assignment1_s3929513/FireStoreDatabaseHandler.java
+===================================================================
+diff --git a/app/src/main/java/rmit/ad/assignment1_s3929513/FireStoreDatabaseHandler.java b/app/src/main/java/rmit/ad/assignment1_s3929513/FireStoreDatabaseHandler.java
+new file mode 100644
+--- /dev/null	(date 1731917333755)
++++ b/app/src/main/java/rmit/ad/assignment1_s3929513/FireStoreDatabaseHandler.java	(date 1731917333755)
+@@ -0,0 +1,161 @@
++package rmit.ad.assignment1_s3929513;
++
++import android.util.Log;
++
++import androidx.annotation.NonNull;
++
++import com.google.firebase.firestore.FirebaseFirestore;
++import com.google.firebase.firestore.Query;
++import com.google.firebase.firestore.QueryDocumentSnapshot;
++
++import java.util.ArrayList;
++import java.util.List;
++
++import rmit.ad.assignment1_s3929513.model.Artist;
++import rmit.ad.assignment1_s3929513.model.Artwork;
++import rmit.ad.assignment1_s3929513.model.Review;
++
++public class FireStoreDatabaseHandler {
++
++    private static final String TAG = "FirestoreDBHandler";
++    private static final String ARTISTS_COLLECTION = "Artists";
++    private static final String ARTWORKS_COLLECTION = "Artworks";
++    private static final String REVIEWS_COLLECTION = "Reviews";
++
++    private final FirebaseFirestore db;
++
++    public FireStoreDatabaseHandler() {
++        this.db = FirebaseFirestore.getInstance();
++    }
++
++    // ===================== ARTIST METHODS =====================
++
++    public void fetchAllArtists(DataCallback<List<Artist>> callback) {
++        db.collection(ARTISTS_COLLECTION)
++                .get()
++                .addOnCompleteListener(task -> {
++                    if (task.isSuccessful()) {
++                        List<Artist> artists = new ArrayList<>();
++                        for (QueryDocumentSnapshot document : task.getResult()) {
++                            Artist artist = document.toObject(Artist.class);
++                            artists.add(artist);
++                        }
++                        callback.onSuccess(artists);
++                    } else {
++                        callback.onFailure(task.getException());
++                    }
++                });
++    }
++
++    public void addArtist(Artist artist, DataCallback<Void> callback) {
++        db.collection(ARTISTS_COLLECTION)
++                .document(artist.getId())
++                .set(artist)
++                .addOnSuccessListener(unused -> callback.onSuccess(null))
++                .addOnFailureListener(callback::onFailure);
++    }
++
++    public void deleteArtist(String artistId, DataCallback<Void> callback) {
++        db.collection(ARTISTS_COLLECTION)
++                .document(artistId)
++                .delete()
++                .addOnSuccessListener(unused -> callback.onSuccess(null))
++                .addOnFailureListener(callback::onFailure);
++    }
++
++    // ===================== ARTWORK METHODS =====================
++
++    public void fetchAllArtworks(DataCallback<List<Artwork>> callback) {
++        db.collection(ARTWORKS_COLLECTION)
++                .get()
++                .addOnCompleteListener(task -> {
++                    if (task.isSuccessful()) {
++                        List<Artwork> artworks = new ArrayList<>();
++                        for (QueryDocumentSnapshot document : task.getResult()) {
++                            Artwork artwork = document.toObject(Artwork.class);
++                            artworks.add(artwork);
++                        }
++                        callback.onSuccess(artworks);
++                    } else {
++                        callback.onFailure(task.getException());
++                    }
++                });
++    }
++
++    public void fetchArtworksByArtist(String artistId, DataCallback<List<Artwork>> callback) {
++        db.collection(ARTWORKS_COLLECTION)
++                .whereEqualTo("artistId", artistId)
++                .get()
++                .addOnCompleteListener(task -> {
++                    if (task.isSuccessful()) {
++                        List<Artwork> artworks = new ArrayList<>();
++                        for (QueryDocumentSnapshot document : task.getResult()) {
++                            Artwork artwork = document.toObject(Artwork.class);
++                            artworks.add(artwork);
++                        }
++                        callback.onSuccess(artworks);
++                    } else {
++                        callback.onFailure(task.getException());
++                    }
++                });
++    }
++
++    public void addArtwork(Artwork artwork, DataCallback<Void> callback) {
++        db.collection(ARTWORKS_COLLECTION)
++                .document(artwork.getId())
++                .set(artwork)
++                .addOnSuccessListener(unused -> callback.onSuccess(null))
++                .addOnFailureListener(callback::onFailure);
++    }
++
++    public void deleteArtwork(String artworkId, DataCallback<Void> callback) {
++        db.collection(ARTWORKS_COLLECTION)
++                .document(artworkId)
++                .delete()
++                .addOnSuccessListener(unused -> callback.onSuccess(null))
++                .addOnFailureListener(callback::onFailure);
++    }
++
++    // ===================== REVIEW METHODS =====================
++
++    public void fetchReviewsByArtwork(String artworkId, DataCallback<List<Review>> callback) {
++        db.collection(REVIEWS_COLLECTION)
++                .whereEqualTo("artworkId", artworkId)
++                .get()
++                .addOnCompleteListener(task -> {
++                    if (task.isSuccessful()) {
++                        List<Review> reviews = new ArrayList<>();
++                        for (QueryDocumentSnapshot document : task.getResult()) {
++                            Review review = document.toObject(Review.class);
++                            reviews.add(review);
++                        }
++                        callback.onSuccess(reviews);
++                    } else {
++                        callback.onFailure(task.getException());
++                    }
++                });
++    }
++
++    public void addReview(Review review, DataCallback<Void> callback) {
++        db.collection(REVIEWS_COLLECTION)
++                .document(review.getId())
++                .set(review)
++                .addOnSuccessListener(unused -> callback.onSuccess(null))
++                .addOnFailureListener(callback::onFailure);
++    }
++
++    public void deleteReview(String reviewId, DataCallback<Void> callback) {
++        db.collection(REVIEWS_COLLECTION)
++                .document(reviewId)
++                .delete()
++                .addOnSuccessListener(unused -> callback.onSuccess(null))
++                .addOnFailureListener(callback::onFailure);
++    }
++
++    // ===================== CALLBACK INTERFACE =====================
++
++    public interface DataCallback<T> {
++        void onSuccess(T result);
++        void onFailure(Exception e);
++    }
++}
+Index: app/src/main/res/layout/item_artwork.xml
+===================================================================
+diff --git a/app/src/main/res/layout/item_artwork.xml b/app/src/main/res/layout/item_artwork.xml
+new file mode 100644
+--- /dev/null	(date 1731917546628)
++++ b/app/src/main/res/layout/item_artwork.xml	(date 1731917546628)
+@@ -0,0 +1,35 @@
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_width="match_parent"
++    android:layout_height="wrap_content"
++    android:orientation="vertical"
++    android:padding="16dp">
++
++    <ImageView
++        android:id="@+id/artwork_image"
++        android:layout_width="match_parent"
++        android:layout_height="200dp"
++        android:scaleType="centerCrop" />
++
++    <TextView
++        android:id="@+id/artwork_title"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:text="Artwork Title"
++        android:textSize="18sp"
++        android:textStyle="bold"
++        android:paddingTop="8dp" />
++
++    <TextView
++        android:id="@+id/artwork_artist_id"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:text="Artist"
++        android:paddingTop="4dp" />
++
++    <TextView
++        android:id="@+id/artwork_description"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:text="Description"
++        android:paddingTop="4dp" />
++</LinearLayout>
+Index: app/src/main/res/menu/bottom_navigation_menu.xml
+===================================================================
+diff --git a/app/src/main/res/menu/bottom_navigation_menu.xml b/app/src/main/res/menu/bottom_navigation_menu.xml
+new file mode 100644
+--- /dev/null	(date 1731920916225)
++++ b/app/src/main/res/menu/bottom_navigation_menu.xml	(date 1731920916225)
+@@ -0,0 +1,14 @@
++<menu xmlns:android="http://schemas.android.com/apk/res/android">
++    <item
++        android:id="@+id/nav_home"
++        android:icon="@drawable/home"
++        android:title="Home" />
++    <item
++        android:id="@+id/nav_favorite"
++        android:icon="@drawable/star_empty"
++        android:title="Favorite" />
++    <item
++        android:id="@+id/nav_user"
++        android:icon="@drawable/user"
++        android:title="User" />
++</menu>
+Index: app/src/main/java/rmit/ad/assignment1_s3929513/adapter/ArtworkAdapter.java
+===================================================================
+diff --git a/app/src/main/java/rmit/ad/assignment1_s3929513/adapter/ArtworkAdapter.java b/app/src/main/java/rmit/ad/assignment1_s3929513/adapter/ArtworkAdapter.java
+new file mode 100644
+--- /dev/null	(date 1731921060005)
++++ b/app/src/main/java/rmit/ad/assignment1_s3929513/adapter/ArtworkAdapter.java	(date 1731921060005)
+@@ -0,0 +1,73 @@
++package rmit.ad.assignment1_s3929513.adapter;
++
++import android.view.LayoutInflater;
++import android.view.View;
++import android.view.ViewGroup;
++import android.widget.ImageView;
++import android.widget.TextView;
++
++import androidx.annotation.NonNull;
++import androidx.recyclerview.widget.RecyclerView;
++
++import com.bumptech.glide.Glide;
++
++import java.util.List;
++
++import rmit.ad.assignment1_s3929513.R;
++import rmit.ad.assignment1_s3929513.model.Artwork;
++
++public class ArtworkAdapter extends RecyclerView.Adapter<ArtworkAdapter.ArtworkViewHolder> {
++
++    private List<Artwork> artworks;
++
++    public ArtworkAdapter(List<Artwork> artworks) {
++        this.artworks = artworks;
++    }
++
++    @NonNull
++    @Override
++    public ArtworkViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
++        View view = LayoutInflater.from(parent.getContext())
++                .inflate(R.layout.item_artwork, parent, false);
++        return new ArtworkViewHolder(view);
++    }
++
++    @Override
++    public void onBindViewHolder(@NonNull ArtworkViewHolder holder, int position) {
++        Artwork artwork = artworks.get(position);
++        holder.title.setText(artwork.getTitle());
++        holder.artistId.setText("Artist: " + artwork.getArtistId());
++        holder.description.setText(artwork.getDescription());
++
++        // Load the image using Glide
++        Glide.with(holder.imageView.getContext())
++                .load(artwork.getImageUrl())
++                .placeholder(R.drawable.pillars)
++                .into(holder.imageView);
++    }
++
++    @Override
++    public int getItemCount() {
++        return artworks.size();
++    }
++
++    public void updateList(List<Artwork> newArtworks) {
++        this.artworks = newArtworks;
++        notifyDataSetChanged();
++    }
++
++    public static class ArtworkViewHolder extends RecyclerView.ViewHolder {
++        TextView title;
++        TextView artistId;
++        TextView description;
++        ImageView imageView;
++
++        public ArtworkViewHolder(@NonNull View itemView) {
++            super(itemView);
++            title = itemView.findViewById(R.id.artwork_title);
++            artistId = itemView.findViewById(R.id.artwork_artist_id);
++            description = itemView.findViewById(R.id.artwork_description);
++            imageView = itemView.findViewById(R.id.artwork_image);
++        }
++    }
++}
+Index: gradle.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># Project-wide Gradle settings.\r\n# IDE (e.g. Android Studio) users:\r\n# Gradle settings configured through the IDE *will override*\r\n# any settings specified in this file.\r\n# For more details on how to configure your build environment visit\r\n# http://www.gradle.org/docs/current/userguide/build_environment.html\r\n# Specifies the JVM arguments used for the daemon process.\r\n# The setting is particularly useful for tweaking memory settings.\r\norg.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8\r\n# When configured, Gradle will run in incubating parallel mode.\r\n# This option should only be used with decoupled projects. For more details, visit\r\n# https://developer.android.com/r/tools/gradle-multi-project-decoupled-projects\r\n# org.gradle.parallel=true\r\n# AndroidX package structure to make it clearer which packages are bundled with the\r\n# Android operating system, and which are packaged with your app's APK\r\n# https://developer.android.com/topic/libraries/support-library/androidx-rn\r\nandroid.useAndroidX=true\r\n# Enables namespacing of each library's R class so that its R class includes only the\r\n# resources declared in the library itself and none from the library's dependencies,\r\n# thereby reducing the size of the R class for that library\r\nandroid.nonTransitiveRClass=true
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>ISO-8859-1
+===================================================================
+diff --git a/gradle.properties b/gradle.properties
+--- a/gradle.properties	(revision 2d008233b9b11eef3c80dd02bc513419fea22b15)
++++ b/gradle.properties	(date 1731915130394)
+@@ -18,4 +18,5 @@
+ # Enables namespacing of each library's R class so that its R class includes only the
+ # resources declared in the library itself and none from the library's dependencies,
+ # thereby reducing the size of the R class for that library
+-android.nonTransitiveRClass=true
+\ No newline at end of file
++android.nonTransitiveRClass=true
++android.nonfinalresids=false
+\ No newline at end of file
