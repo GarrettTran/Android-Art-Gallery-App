@@ -1,28 +1,23 @@
-package rmit.ad.assignment1_s3929513;
+package rmit.ad.assignment1_s3929513.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 
 
-
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class MainActivity extends AppCompatActivity {
+import rmit.ad.assignment1_s3929513.CustomToast;
+import rmit.ad.assignment1_s3929513.R;
+
+public class loginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private EditText emailField, passwordField;
 
@@ -31,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_login);
 
         mAuth = FirebaseAuth.getInstance();
         emailField = findViewById(R.id.emailField);
@@ -60,11 +55,11 @@ public class MainActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         // Registration successful, user is logged in
                         FirebaseUser user = mAuth.getCurrentUser();
-                        CustomToast.makeText(MainActivity.this,"Registration Successful",CustomToast.SHORT,CustomToast.SUCCESS,true).show();
+                        CustomToast.makeText(loginActivity.this,"Registration Successful",CustomToast.SHORT,CustomToast.SUCCESS,true).show();
 
                     } else {
                         // Registration failed, display a message
-                        CustomToast.makeText(MainActivity.this,"Registration Failed: " + task.getException().getMessage(),CustomToast.SHORT,CustomToast.ERROR,true).show();
+                        CustomToast.makeText(loginActivity.this,"Registration Failed: " + task.getException().getMessage(),CustomToast.SHORT,CustomToast.ERROR,true).show();
                     }
                 });
     }
@@ -75,26 +70,34 @@ public class MainActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, task -> {
                     progressBar.setVisibility(View.GONE);
                     if (task.isSuccessful()) {
-                        // Login successful, user is logged in
+                        // Login successful, navigate to HomeActivity
                         FirebaseUser user = mAuth.getCurrentUser();
-                        CustomToast.makeText(MainActivity.this,"Login Successful",CustomToast.SHORT,CustomToast.SUCCESS,true).show();
+                        CustomToast.makeText(loginActivity.this, "Login Successful", CustomToast.SHORT, CustomToast.SUCCESS, true).show();
+
+                        // Navigate to HomeActivity
+                        Intent intent = new Intent(loginActivity.this, HomeActivity.class);
+                        intent.putExtra("userEmail", user.getEmail()); // Pass user email
+                        startActivity(intent);
+                        finish(); // Close LoginActivity
                     } else {
                         // Login failed, display a message
-                        CustomToast.makeText(MainActivity.this,"Login Failed: " + task.getException().getMessage(),CustomToast.SHORT,CustomToast.ERROR,true).show();
+                        CustomToast.makeText(loginActivity.this, "Login Failed: " + task.getException().getMessage(), CustomToast.SHORT, CustomToast.ERROR, true).show();
                     }
                 });
     }
+
 
     @Override
     protected void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            // User is already logged in, proceed to the main app
-            CustomToast.makeText(this, "Welcome Back " + currentUser.getEmail(), CustomToast.SHORT, CustomToast.SUCCESS, true).show();
-
+            Intent intent = new Intent(loginActivity.this, HomeActivity.class);
+            startActivity(intent);
+            finish(); // Close LoginActivity
         }
     }
+
 
     private void signOut() {
         mAuth.signOut();
