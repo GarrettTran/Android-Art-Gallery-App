@@ -8,7 +8,16 @@
         android:icon="@drawable/star_empty"
         android:title="Favorite" />
     <item
+        android:id="@+id/nav_artist"
+        android:icon="@drawable/painter"
+        android:title="Artist" />
+    <item
+        android:id="@+id/nav_AI"
+        android:icon="@drawable/ai"
+        android:title="AI" />
+    <item
         android:id="@+id/nav_user"
         android:icon="@drawable/user"
         android:title="User" />
+
 </menu>

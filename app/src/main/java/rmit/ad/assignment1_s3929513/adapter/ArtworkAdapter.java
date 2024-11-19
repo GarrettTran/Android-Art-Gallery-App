@@ -1,5 +1,8 @@
 package rmit.ad.assignment1_s3929513.adapter;
 
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,18 +12,23 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+// Include Glide for image loading
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
 
 import rmit.ad.assignment1_s3929513.R;
+import rmit.ad.assignment1_s3929513.activity.DetailActivity;
 import rmit.ad.assignment1_s3929513.model.Artwork;
 
 public class ArtworkAdapter extends RecyclerView.Adapter<ArtworkAdapter.ArtworkViewHolder> {
 
     private List<Artwork> artworks;
+    private Context context;
 
-    public ArtworkAdapter(List<Artwork> artworks) {
+    public ArtworkAdapter(Context context, List<Artwork> artworks) {
+        this.context = context;
         this.artworks = artworks;
     }
 
@@ -35,15 +43,30 @@ public class ArtworkAdapter extends RecyclerView.Adapter<ArtworkAdapter.ArtworkV
     @Override
     public void onBindViewHolder(@NonNull ArtworkViewHolder holder, int position) {
         Artwork artwork = artworks.get(position);
+
         holder.title.setText(artwork.getTitle());
-        holder.artistId.setText("Artist: " + artwork.getArtistId());
+        holder.artistName.setText(artwork.getArtistName());
         holder.description.setText(artwork.getDescription());
 
-        // Load the image using Glide
         Glide.with(holder.imageView.getContext())
                 .load(artwork.getImageUrl())
                 .placeholder(R.drawable.pillars)
                 .into(holder.imageView);
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(holder.itemView.getContext(), DetailActivity.class);
+            intent.putExtra("userId", FirebaseAuth.getInstance().getCurrentUser().getUid()); // Pass userId
+            intent.putExtra("artworkId", artwork.getId()); // Pass artwork ID
+            intent.putExtra("title", artwork.getTitle());
+            intent.putExtra("artistName", artwork.getArtistName());
+            intent.putExtra("description", artwork.getDescription());
+            intent.putExtra("imageUrl", artwork.getImageUrl());
+            intent.putExtra("medium", artwork.getMedium());
+            intent.putExtra("price", artwork.getPrice());
+            intent.putExtra("dateCreated", artwork.getDateCreated().toString());
+            holder.itemView.getContext().startActivity(intent);
+        });
+
     }
 
     @Override
@@ -51,21 +74,23 @@ public class ArtworkAdapter extends RecyclerView.Adapter<ArtworkAdapter.ArtworkV
         return artworks.size();
     }
 
+    // Method to update the list of artworks
     public void updateList(List<Artwork> newArtworks) {
         this.artworks = newArtworks;
         notifyDataSetChanged();
     }
 
+    // ViewHolder class
     public static class ArtworkViewHolder extends RecyclerView.ViewHolder {
         TextView title;
-        TextView artistId;
+        TextView artistName;
         TextView description;
         ImageView imageView;
 
         public ArtworkViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.artwork_title);
-            artistId = itemView.findViewById(R.id.artwork_artist_id);
+            artistName = itemView.findViewById(R.id.artwork_name); // Ensure this ID matches your layout
             description = itemView.findViewById(R.id.artwork_description);
             imageView = itemView.findViewById(R.id.artwork_image);
         }

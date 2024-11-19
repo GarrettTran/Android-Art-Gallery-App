@@ -1,16 +1,14 @@
-package rmit.ad.assignment1_s3929513;
+package rmit.ad.assignment1_s3929513.helper;
 
-import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import rmit.ad.assignment1_s3929513.R;
 
 public class CustomToast extends Toast {
 

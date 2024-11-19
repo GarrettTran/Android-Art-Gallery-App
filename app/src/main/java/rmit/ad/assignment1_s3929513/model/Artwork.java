@@ -9,14 +9,15 @@ public class Artwork {
     private String description;
     private String medium;
     private String imageUrl;
-    private double price;
+    private String price;
     private boolean isFeatured;
     private Date dateCreated;
+    private String artistName;
 
     public Artwork() {}
 
     public Artwork(String id, String title, String artistId, String description,
-                   String medium, String imageUrl, double price, boolean isFeatured,
+                   String medium, String imageUrl, String price, boolean isFeatured,
                    Date dateCreated) {
         this.id = id;
         this.title = title;
@@ -72,16 +73,19 @@ public class Artwork {
     public String getImageUrl() {
         return imageUrl;
     }
+    public String getArtistName() {
+        return artistName;
+    }
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
 
-    public double getPrice() {
+    public String getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(String price) {
         this.price = price;
     }
 
@@ -101,6 +105,9 @@ public class Artwork {
         this.dateCreated = dateCreated;
     }
 
+    public void setArtistName(String artistName) {
+        this.artistName = artistName;
+    }
     @Override
     public String toString() {
         return "Artwork{" +

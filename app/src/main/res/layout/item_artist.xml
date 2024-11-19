@@ -3,9 +3,9 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_margin="8dp"
-    app:cardElevation="6dp"
     app:cardCornerRadius="12dp"
-    android:padding="10dp">
+    app:cardElevation="6dp"
+    android:padding="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,43 +13,42 @@
         android:orientation="vertical"
         android:padding="8dp">
 
-        <!-- Fullscreen Image -->
+        <!-- Artist Profile Image -->
         <ImageView
-            android:id="@+id/artwork_image"
+            android:id="@+id/artist_profile_image"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:scaleType="fitCenter"
-            android:contentDescription="Artwork Image"
-            android:background="@color/main_background"
-            android:elevation="6dp"/>
+            android:contentDescription="Artist Profile Image"
+            android:background="@color/main_background" />
 
-        <!-- Artwork Title -->
+        <!-- Artist Name -->
         <TextView
-            android:id="@+id/artwork_title"
+            android:id="@+id/artist_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Artwork Title"
+            android:text="Artist Name"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@android:color/black"
             android:paddingTop="8dp" />
 
-        <!-- Artist Name -->
+        <!-- Nationality -->
         <TextView
-            android:id="@+id/artwork_name"
+            android:id="@+id/artist_nationality"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Artist Name"
+            android:text="Nationality"
             android:textSize="16sp"
             android:textColor="@android:color/darker_gray"
             android:paddingTop="4dp" />
 
-        <!-- Description -->
+        <!-- Artist Biography -->
         <TextView
-            android:id="@+id/artwork_description"
+            android:id="@+id/artist_bio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Short Description of the artwork goes here."
+            android:text="Short biography of the artist goes here."
             android:textSize="14sp"
             android:textColor="@android:color/black"
             android:paddingTop="4dp" />

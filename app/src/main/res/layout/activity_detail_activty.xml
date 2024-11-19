@@ -1,0 +1,133 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="5dp"
+    android:background="@color/white">
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/main_background"
+            android:titleTextColor="@android:color/white"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+        <!-- Artwork Image -->
+        <ImageView
+            android:id="@+id/artwork_image"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:scaleType="centerCrop"
+            android:contentDescription="Artwork Image"
+            android:background="@android:color/darker_gray"
+            android:elevation="4dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginTop="16dp"/>
+
+        <!-- Artwork Details -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            app:cardElevation="4dp"
+            app:cardCornerRadius="12dp"
+            android:backgroundTint="@android:color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <!-- Artwork Title -->
+                    <TextView
+                        android:id="@+id/artwork_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Artwork Title"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:textAlignment="center"
+
+                        android:textColor="@android:color/black" />
+
+                    <!-- Favorite Button -->
+                    <ImageView
+                        android:id="@+id/favorite_button"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:src="@drawable/star_empty"
+                        android:layout_marginLeft="20dp"
+                        android:elevation="10dp"
+                        android:contentDescription="Favorite Button" />
+                </LinearLayout>
+
+                <!-- Artist Name -->
+                <TextView
+                    android:id="@+id/artist_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Artist Name"
+                    android:textSize="18sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Artwork Description -->
+                <TextView
+                    android:id="@+id/artwork_description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Description"
+                    android:textSize="16sp"
+                    android:lineSpacingExtra="4dp"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Artwork Medium -->
+                <TextView
+                    android:id="@+id/artwork_medium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Medium"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Artwork Price -->
+                <TextView
+                    android:id="@+id/artwork_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Price"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Date Created -->
+                <TextView
+                    android:id="@+id/artwork_date_created"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Date Created"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="8dp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+</ScrollView>

@@ -19,17 +19,17 @@ import rmit.ad.assignment1_s3929513.adapter.ArtworkAdapter;
 import rmit.ad.assignment1_s3929513.database.FireStoreDatabaseHandler;
 import rmit.ad.assignment1_s3929513.model.Artwork;
 
-public class HomeActivity extends AppCompatActivity {
+public class FavoriteActivity extends AppCompatActivity {
 
     private FireStoreDatabaseHandler dbHandler;
     private RecyclerView recyclerView;
     private ArtworkAdapter adapter;
-    private List<Artwork> allArtworks = new ArrayList<>();
+    private List<Artwork> favoriteArtworks = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.activity_home); // Reuse the HomeActivity layout
 
         // Initialize Firestore handler
         dbHandler = new FireStoreDatabaseHandler();
@@ -38,8 +38,8 @@ public class HomeActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Fetch artworks with artist names
-        fetchArtworksWithArtistNames();
+        // Fetch favorite artworks with artist names
+        fetchFavoriteArtworksWithArtistNames();
 
         // Set up Search Bar
         SearchView searchView = findViewById(R.id.search_bar);
@@ -62,25 +62,25 @@ public class HomeActivity extends AppCompatActivity {
         rmit.ad.assignment1_s3929513.helper.BottomNavigationHelper.setupBottomNavigation(bottomNavigationView, this);
     }
 
-    private void fetchArtworksWithArtistNames() {
+    private void fetchFavoriteArtworksWithArtistNames() {
         dbHandler.fetchArtistNameMap(new FireStoreDatabaseHandler.DataCallback<Map<String, String>>() {
             @Override
             public void onSuccess(Map<String, String> artistNameMap) {
-                dbHandler.fetchAllArtworks(new FireStoreDatabaseHandler.DataCallback<List<Artwork>>() {
+                dbHandler.fetchFavoriteArtworks(dbHandler.getCurrentUserId(), new FireStoreDatabaseHandler.DataCallback<List<Artwork>>() {
                     @Override
                     public void onSuccess(List<Artwork> artworks) {
                         for (Artwork artwork : artworks) {
                             String artistName = artistNameMap.get(artwork.getArtistId());
                             artwork.setArtistName(artistName != null ? artistName : "Unknown Artist");
                         }
-                        allArtworks = artworks;
-                        adapter = new ArtworkAdapter(HomeActivity.this, allArtworks);
+                        favoriteArtworks = artworks;
+                        adapter = new ArtworkAdapter(FavoriteActivity.this, favoriteArtworks);
                         recyclerView.setAdapter(adapter);
                     }
 
                     @Override
                     public void onFailure(Exception e) {
-                        Log.e("Firestore", "Error fetching artworks", e);
+                        Log.e("Firestore", "Error fetching favorite artworks", e);
                     }
                 });
             }
@@ -94,7 +94,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void filterArtworks(String query) {
         List<Artwork> filteredList = new ArrayList<>();
-        for (Artwork artwork : allArtworks) {
+        for (Artwork artwork : favoriteArtworks) {
             if (artwork.getTitle().toLowerCase().contains(query.toLowerCase())) {
                 filteredList.add(artwork);
             }

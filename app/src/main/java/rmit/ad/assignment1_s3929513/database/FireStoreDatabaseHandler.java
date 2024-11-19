@@ -1,26 +1,27 @@
-package rmit.ad.assignment1_s3929513;
+package rmit.ad.assignment1_s3929513.database;
 
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import rmit.ad.assignment1_s3929513.model.Artist;
 import rmit.ad.assignment1_s3929513.model.Artwork;
 import rmit.ad.assignment1_s3929513.model.Review;
+import rmit.ad.assignment1_s3929513.model.User;
 
 public class FireStoreDatabaseHandler {
 
     private static final String TAG = "FirestoreDBHandler";
-    private static final String ARTISTS_COLLECTION = "Artists";
+    private static final String ARTISTS_COLLECTION = "Artist";
     private static final String ARTWORKS_COLLECTION = "Artworks";
     private static final String REVIEWS_COLLECTION = "Reviews";
+    private static final String USERS_COLLECTION = "Users";
 
     private final FirebaseFirestore db;
 
@@ -30,22 +31,37 @@ public class FireStoreDatabaseHandler {
 
     // ===================== ARTIST METHODS =====================
 
-    public void fetchAllArtists(DataCallback<List<Artist>> callback) {
-        db.collection(ARTISTS_COLLECTION)
+
+    public void fetchArtistNameMap(FireStoreDatabaseHandler.DataCallback<Map<String, String>> callback) {
+        db.collection("Artist")
                 .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        List<Artist> artists = new ArrayList<>();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Artist artist = document.toObject(Artist.class);
-                            artists.add(artist);
-                        }
-                        callback.onSuccess(artists);
-                    } else {
-                        callback.onFailure(task.getException());
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    Map<String, String> artistNameMap = new HashMap<>();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        Artist artist = doc.toObject(Artist.class);
+                        artistNameMap.put(artist.getId(), artist.getName());
                     }
-                });
+                    callback.onSuccess(artistNameMap);
+                })
+                .addOnFailureListener(callback::onFailure);
     }
+
+
+
+    public void fetchAllArtists(DataCallback<List<Artist>> callback) {
+        db.collection("Artist")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Artist> artists = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        Artist artist = doc.toObject(Artist.class);
+                        artists.add(artist);
+                    }
+                    callback.onSuccess(artists);
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
 
     public void addArtist(Artist artist, DataCallback<Void> callback) {
         db.collection(ARTISTS_COLLECTION)
@@ -82,6 +98,8 @@ public class FireStoreDatabaseHandler {
                 });
     }
 
+
+
     public void fetchArtworksByArtist(String artistId, DataCallback<List<Artwork>> callback) {
         db.collection(ARTWORKS_COLLECTION)
                 .whereEqualTo("artistId", artistId)
@@ -113,6 +131,52 @@ public class FireStoreDatabaseHandler {
                 .document(artworkId)
                 .delete()
                 .addOnSuccessListener(unused -> callback.onSuccess(null))
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    public String getCurrentUserId() {
+        return FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
+
+    public void fetchFavoriteArtworks(String userId, DataCallback<List<Artwork>> callback) {
+        if (userId == null || userId.isEmpty()) {
+            callback.onFailure(new IllegalArgumentException("User ID is null or empty"));
+            return;
+        }
+
+        db.collection(USERS_COLLECTION)
+                .document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        User user = documentSnapshot.toObject(User.class);
+                        if (user != null && user.getFavoriteArtworks() != null) {
+                            List<String> favoriteArtworkIds = user.getFavoriteArtworks();
+                            fetchArtworksByIds(favoriteArtworkIds, callback);
+                        } else {
+                            callback.onSuccess(new ArrayList<>()); // No favorites
+                        }
+                    } else {
+                        callback.onFailure(new Exception("User not found"));
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    private void fetchArtworksByIds(List<String> artworkIds, DataCallback<List<Artwork>> callback) {
+        db.collection(ARTWORKS_COLLECTION)
+                .whereIn("id", artworkIds)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Artwork> artworks = new ArrayList<>();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        Artwork artwork = doc.toObject(Artwork.class);
+                        if (artwork != null) {
+                            artworks.add(artwork);
+                        }
+                    }
+                    callback.onSuccess(artworks);
+                })
                 .addOnFailureListener(callback::onFailure);
     }
 
