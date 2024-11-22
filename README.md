@@ -1,4 +1,4 @@
-# Project Name
+# ART PILLARS
 
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
 ![Android](https://img.shields.io/badge/platform-Android-blue)
